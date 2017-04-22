@@ -26,28 +26,46 @@ def assign_centroids(X, centroids):
     K = centroids.shape[0]  # Number of clusters/centroids
     m = X.shape[0]  # Number of points/examples
     # n = X.shape[1]  # Number of features
-    index = np.zeros((m, 1))  # Cluster assignment vector
+    labels = np.zeros((m, 1))  # Cluster assignment vector
     for i in range(m):  # For each i-th x-value in the data
         dist_array = np.zeros((1, K))  # Stores squared distances for each K
         for j in range(K):  # Compute squared distance for j-th cluster, K
             dist_array[0][j] = np.sum(np.square((X[i]) - centroids[j]))
         min_dist = np.argmin(dist_array[0])  # Save index of min distance
-        index[i] = min_dist  # Assign the point, i, to cluster
-    return index  # Return vector of cluster indices
+        labels[i] = min_dist  # Assign the point, i, to cluster index
+    return labels  # Return vector of cluster labels
 
 
-def compute_centroids(X, index, K):
-    m = X.shape[0]
-    n = X.shape[1]
-    return [m, n]
+def compute_centroids(X, labels):
+    '''
+    Input (m,n) matrix, X, and (m,1) label vector to compute new (K,n)
+    centroid matrix, K.
+    '''
+    tempX = []
+    for i in range(len(np.unique(labels))):
+        tempX.append(
+            np.array(
+                [X[i] for i in range(X.shape[0]) if labels[i] == i]
+            )
+        )
+    return np.array([np.mean(i, axis=0) for i in tempX])
+
+
+def run_KMeans(X, centroids, K, max_iter):
+    centroid_history = []
+    current_centroid = centroids
+    for i in range(max_iter):
+        centroid_history.append(current_centroid)
+        labels = assign_centroids(X, current_centroid)
+        current_centroid = compute_centroids(X, labels)
+    return labels, centroid_history
 
 
 def main():
     X = process_data('data/delivery_truck.csv', K=2)
     centroids = init_centroids(X, K=2)
-    print('K: {0} and m: {1}'.format(centroids.shape[0], X.shape[0]))
-    labels = assign_centroids(X, centroids)
-    print(labels)
+    # labels = assign_centroids(X, centroids)
+    [labels, history] = run_KMeans(X, centroids, K=2, max_iter=10)
 
 
 if __name__ == '__main__':
