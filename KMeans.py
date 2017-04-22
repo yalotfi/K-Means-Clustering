@@ -51,7 +51,13 @@ def compute_centroids(X, labels):
     return np.array([np.mean(i, axis=0) for i in tempX])
 
 
-def run_KMeans(X, centroids, K, max_iter):
+def run_KMeans(X, centroids, max_iter):
+    '''
+    Starting at a random set of centroids, iterate through the algorithm
+    that assigns centroids, calculates the mean distance, then updates
+    the cluster assignments. Saves the centroid history for plotting the
+    iteration, as well.
+    '''
     centroid_history = []
     current_centroid = centroids
     for i in range(max_iter):
@@ -61,12 +67,21 @@ def run_KMeans(X, centroids, K, max_iter):
     return labels, centroid_history
 
 
-def main():
-    X = process_data('data/delivery_truck.csv', K=2)
-    centroids = init_centroids(X, K=2)
-    # labels = assign_centroids(X, centroids)
-    [labels, history] = run_KMeans(X, centroids, K=2, max_iter=10)
+def plot_data(X, centroid_history, labels):
+    '''
+    Plot the clustered data and the path of each centroid
+    '''
+    # Color mapping
+    # Plot data and color by cluster
+    # Plot past and final centroids
+
+
+def main(K):
+    X = process_data('data/delivery_truck.csv', K)
+    centroids = init_centroids(X, K)
+    [labels, history] = run_KMeans(X, centroids, max_iter=10)
+    print(history)
 
 
 if __name__ == '__main__':
-    main()
+    main(K=2)
