@@ -39,16 +39,16 @@ def assign_centroids(X, centroids):
 def compute_centroids(X, labels):
     '''
     Input (m,n) matrix, X, and (m,1) label vector to compute new (K,n)
-    centroid matrix, K.
+    centroid means.
     '''
     tempX = []
-    for i in range(len(np.unique(labels))):
-        tempX.append(
+    for i in range(len(np.unique(labels))):  # Loop K times
+        tempX.append(  # Append the data points by label
             np.array(
                 [X[i] for i in range(X.shape[0]) if labels[i] == i]
             )
         )
-    return np.array([np.mean(i, axis=0) for i in tempX])
+    return np.array([np.mean(i, axis=0) for i in tempX])  # Compute means
 
 
 def run_KMeans(X, centroids, max_iter):
