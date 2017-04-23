@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from random import sample
 
 
@@ -30,28 +31,29 @@ def assign_centroids(X, centroids):
     for i in range(m):  # For each i-th x-value in the data
         dist_array = np.zeros((1, K))  # Stores squared distances for each K
         for j in range(K):  # Compute squared distance for j-th cluster, K
-            dist_array[0][j] = np.sum(np.square((X[i]) - centroids[j]))
-        min_dist = np.argmin(dist_array[0])  # Save index of min distance
+            dist_array[0, j] = np.sqrt(np.sum((X[i, :] - centroids[j, :])**2))
+        min_dist = np.argmin(dist_array)  # Save index of min distance
         labels[i] = min_dist  # Assign the point, i, to cluster index
     return labels  # Return vector of cluster labels
 
 
-def compute_centroids(X, labels):
+def compute_centroids(X, labels, K):
     '''
     Input (m,n) matrix, X, and (m,1) label vector to compute new (K,n)
     centroid means.
     '''
-    tempX = []
-    for i in range(len(np.unique(labels))):  # Loop K times
-        tempX.append(  # Append the data points by label
-            np.array(
-                [X[i] for i in range(X.shape[0]) if labels[i] == i]
-            )
-        )
-    return np.array([np.mean(i, axis=0) for i in tempX])  # Compute means
+    n = X.shape[1]  # Number of features, n, important for maths
+    centroids = np.zeros((K, n))  # Return array of dimensions (K,n)
+    for k in range(K):
+        c = np.equal(labels, k)  # Boolean vector: Label match centroid, k?
+        n_k = np.sum(c)  # Integer: Count true values to above question
+        C = np.matlib.repmat(c, 1, n)  # Repeat bool vector for linear algebra
+        X_c = np.multiply(X, C)  # Element-wise multiplication of X and C
+        centroids[k, :] = np.divide(np.sum(X_c, axis=0), n_k)  # Means Dist
+    return centroids
 
 
-def run_KMeans(X, centroids, max_iter):
+def run_KMeans(X, centroids, max_iter, K):
     '''
     Starting at a random set of centroids, iterate through the algorithm
     that assigns centroids, calculates the mean distance, then updates
@@ -63,24 +65,27 @@ def run_KMeans(X, centroids, max_iter):
     for i in range(max_iter):
         centroid_history.append(current_centroid)
         labels = assign_centroids(X, current_centroid)
-        current_centroid = compute_centroids(X, labels)
+        current_centroid = compute_centroids(X, labels, K)
     return labels, centroid_history
 
 
-def plot_data(X, centroid_history, labels):
+def plot_data(X, history, labels):
     '''
     Plot the clustered data and the path of each centroid
     '''
-    # Color mapping
+    # Color mapping based on labels
     # Plot data and color by cluster
+    plt.scatter(X[:, 0], X[:, 1], c=labels)
+    plt.show()
     # Plot past and final centroids
 
 
 def main(K):
     X = process_data('data/delivery_truck.csv', K)
     centroids = init_centroids(X, K)
-    [labels, history] = run_KMeans(X, centroids, max_iter=10)
-    print(history)
+    [labels, history] = run_KMeans(X, centroids, max_iter=10, K=K)
+    print(np.unique(labels))
+    plot_data(X, history, labels)
 
 
 if __name__ == '__main__':
