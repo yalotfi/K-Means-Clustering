@@ -13,6 +13,10 @@ def process_data(file_path, K):
 
 
 def init_centroids(X, K):
+    '''
+    Initilize starting centroids at randomply sampled positions
+    based on the data.
+    '''
     m = X.shape[0]
     indices = sample(range(0, m), K)
     return np.array([X[i] for i in indices])
