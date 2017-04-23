@@ -58,7 +58,8 @@ def run_KMeans(X, centroids, max_iter, K):
     Starting at a random set of centroids, iterate through the algorithm
     that assigns centroids, calculates the mean distance, then updates
     the cluster assignments. Saves the centroid history for plotting the
-    iteration, as well.
+    iteration, as well.  Define a max iteration because you will converge
+    pretty quickly.
     '''
     centroid_history = []
     current_centroid = centroids
