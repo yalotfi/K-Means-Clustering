@@ -12,7 +12,7 @@ def main():
     feature_matrix = np.vstack((f1, f2)).T
 
     # Fit K-Means
-    kmeans = KMeans(n_clusters=2).fit(feature_matrix)
+    kmeans = KMeans(n_clusters=4).fit(feature_matrix)
 
     # Plot Clusters
     x = feature_matrix[:, 0]

@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.matlib as mt
 import matplotlib.pyplot as plt
 from random import sample
 
@@ -20,6 +21,13 @@ def init_centroids(X, K):
     m = X.shape[0]
     indices = sample(range(0, m), K)
     return np.array([X[i] for i in indices])
+
+
+def KMeansPlusPlus(X, K):
+    '''
+    Use the K-Means++ Algorithm to set initial centroids intelligently.
+    '''
+    pass
 
 
 def assign_centroids(X, centroids):
@@ -51,7 +59,7 @@ def compute_centroids(X, labels, K):
     for k in range(K):
         c = np.equal(labels, k)  # Boolean vector: Label match centroid, k?
         n_k = np.sum(c)  # Integer: Count true values to above question
-        C = np.matlib.repmat(c, 1, n)  # Repeat bool vector for linear algebra
+        C = mt.repmat(c, 1, n)  # Repeat bool vector for linear algebra
         X_c = np.multiply(X, C)  # Element-wise multiplication of X and C
         centroids[k, :] = np.divide(np.sum(X_c, axis=0), n_k)  # Means Dist
     return centroids
@@ -89,9 +97,10 @@ def main(K):
     X = process_data('data/delivery_truck.csv', K)
     centroids = init_centroids(X, K)
     [labels, history] = run_KMeans(X, centroids, max_iter=10, K=K)
-    print(np.unique(labels))
+    print(history[0])
+    print(history[9])
     plot_data(X, history, labels)
 
 
 if __name__ == '__main__':
-    main(K=2)
+    main(K=4)
