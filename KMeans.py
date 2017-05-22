@@ -13,6 +13,10 @@ def process_data(file_path, K):
     return feature_matrix
 
 
+def squared_dist(a, b):
+    return np.sqrt(np.sum((a - b)**2))
+
+
 def init_centroids(X, K):
     '''
     Initilize starting centroids at randomply sampled positions
@@ -26,8 +30,18 @@ def init_centroids(X, K):
 def KMeansPlusPlus(X, K):
     '''
     Use the K-Means++ Algorithm to set initial centroids intelligently.
+        1. Choose inital center, c1, uniformly at random from X
+        2. Compute distance vector, D, between each point in X
+        3. Choose new center from weighted probability distirbution
+        4. Repeat 2 and 3 until k-centers chosen
+        5. Run KMeans Clustering
     '''
-    pass
+    m = X.shape[0]
+    c1 = sample(range(0, m), 1)
+    D = np.zeros((m, 1))
+    for i in range(m):
+        D[i] = squared_dist(X[i, :], c1)
+    return D
 
 
 def assign_centroids(X, centroids):
@@ -43,7 +57,7 @@ def assign_centroids(X, centroids):
     for i in range(m):  # For each i-th x-value in the data
         dist_array = np.zeros((1, K))  # Stores squared distances for each K
         for j in range(K):  # Compute squared distance for j-th cluster, K
-            dist_array[0, j] = np.sqrt(np.sum((X[i, :] - centroids[j, :])**2))
+            dist_array[0, j] = squared_dist(X[i, :], centroids[j, :])
         min_dist = np.argmin(dist_array)  # Save index of min distance
         labels[i] = min_dist  # Assign the point, i, to cluster index
     return labels  # Return vector of cluster labels
@@ -99,7 +113,10 @@ def main(K):
     [labels, history] = run_KMeans(X, centroids, max_iter=10, K=K)
     print(history[0])
     print(history[9])
-    plot_data(X, history, labels)
+    D = KMeansPlusPlus(X, K)
+    print(D.shape)
+    print(min(D))
+    # plot_data(X, history, labels)
 
 
 if __name__ == '__main__':
