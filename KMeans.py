@@ -27,23 +27,6 @@ def init_centroids(X, K):
     return np.array([X[i] for i in indices])
 
 
-def KMeansPlusPlus(X, K):
-    '''
-    Use the K-Means++ Algorithm to set initial centroids intelligently.
-        1. Choose inital center, c1, uniformly at random from X
-        2. Compute distance vector, D, between each point in X
-        3. Choose new center from weighted probability distirbution
-        4. Repeat 2 and 3 until k-centers chosen
-        5. Run KMeans Clustering
-    '''
-    m = X.shape[0]
-    c1 = sample(range(0, m), 1)
-    D = np.zeros((m, 1))
-    for i in range(m):
-        D[i] = squared_dist(X[i, :], c1)
-    return D
-
-
 def assign_centroids(X, centroids):
     '''
     Input a (m,n) matrix, X, and a (K,n) matrix of centroids
