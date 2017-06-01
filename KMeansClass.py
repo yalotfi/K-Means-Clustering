@@ -1,5 +1,5 @@
 import numpy as np  # Maths
-import numpy.matlib as mt  # Repeat boolean vector
+from numpy.matlib import repmat  # Repeat boolean vector
 from random import sample  # For centroid initialization
 
 
@@ -12,13 +12,6 @@ def process_data(file_path, K):
     return feature_matrix
 
 
-def squared_dist(a, b):
-    '''
-    Basic Euclidean distance - Squareroot of sum of the squared distances
-    '''
-    return np.sqrt(np.sum((a - b)**2))
-
-
 class KMeans(object):
     def __init__(self, X, K):
         super().__init__()
@@ -28,7 +21,7 @@ class KMeans(object):
         self.K = K  # K clusters to compute
         self.centroids = None  # Store cluster centroids - (K, n) matrix
         self.labels = None  # Store cluster labels - (m, 1) vector
-        self.dist_array = None  # Store distances - (1, K) vectoo0ohe3a 
+        self.dist_array = None  # Store distances - (1, K) vector
 
     def _init_centroids(self):
         '''
@@ -38,6 +31,12 @@ class KMeans(object):
         init_index = sample(range(self.m), self.K)
         return np.array([self.X[i] for i in init_index])
 
+    def _squared_dist(self, a, b):
+        '''
+        Basic Euclidean distance - Squareroot of sum of the squared distances
+        '''
+        return np.sqrt(np.sum((a - b)**2))
+
     def _assign_centroids(self):
         '''
         Input a (m,n) matrix, X, and a (K,n) matrix of centroids
@@ -46,10 +45,14 @@ class KMeans(object):
         '''
         self.centroids = self._init_centroids()
         self.labels = np.zeros((self.m, 1))  # Cluster assignment vector
-        self.dist_array = np.zeros((1, self.K))  # Stores distances for each K
+        # self.dist_array = np.zeros((1, self.K))  # Store distances for each K
+        self.dist_array = []
         for i in range(self.m):  # For each i-th x-value in the data
             for j in range(self.K):  # Compute distance for j-th cluster, K
-                self.dist_array[0, j] = squared_dist(self.X[i, :], self.centroids[j, :])
+                # self.dist_array[0, j] = squared_dist(self.X[i, :], self.centroids[j, :])
+                self.dist_array.append(
+                    self._squared_dist(self.X[i, :], self.centroids[j, :])
+                )
             min_dist = np.argmin(self.dist_array)  # Save index of min distance
             self.labels[i] = min_dist  # Assign the point, i, to cluster index
         return self.labels  # Return vector of cluster labels
@@ -64,7 +67,7 @@ class KMeans(object):
         for k in range(K):
             c = np.equal(labels, k)  # Boolean vector: Label match centroid, k?
             n_k = np.sum(c)  # Integer: Count true values to above question
-            C = mt.repmat(c, 1, n)  # Repeat bool vector for linear algebra
+            C = repmat(c, 1, n)  # Repeat bool vector for linear algebra
             X_c = np.multiply(X, C)  # Element-wise multiplication of X and C
             centroids[k, :] = np.divide(np.sum(X_c, axis=0), n_k)  # Mean Dist
         return centroids
@@ -78,24 +81,23 @@ class KMeans(object):
         pretty quickly.
         '''
         centroid_history = []
-        current_centroid = centroids
+        current_centroid = self.centroids
         for i in range(max_iter):
             centroid_history.append(current_centroid)
-            labels = self._assign_centroids(X, current_centroid)
-            current_centroid = self._compute_centroids(X, labels, K)
+            labels = self._assign_centroids(self.X, current_centroid)
+            current_centroid = self._compute_centroids(self.X, labels, self.K)
         return labels, centroid_history
 
 
 def main(K):
     X = process_data('data/delivery_truck.csv', K)
     kmeans = KMeans(X, K)
-    init = kmeans._init_centroids()
-    print(init)
-    print(X[0:K])
+    labels = kmeans._assign_centroids()
+    print(len(labels))
     # [labels, history] = kmeans.run_kmeans(max_iter=10)
     # print(history[0])
     # print(history[9])
 
 
 if __name__ == '__main__':
-    main(K=4)
+    main(K=3)
